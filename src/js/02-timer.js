@@ -44,22 +44,32 @@ import Notiflix from 'notiflix';
 const refs = {
     inputClock: document.querySelector('#datetime-picker'),
     startBtn: document.querySelector('button[data-start]'),
-        }
+};
+// refs.startBtn.disabled = true;
 const timer = {
+    intervalId: null,
+    isActive: false,
+    
     start() {
+        if (this.isActive) { return;}
         const startTime = Date.now();
+        this.isActive = true;
         // время на момент вызова функции
-        setInterval(() => {
+        this.intervalId=setInterval(() => {
             const currenTime = Date.now()
-            console.log(currenTime);
-        // выводим разницу между текущим и стартовым временем
+            // console.log(currenTime);
+            // выводим разницу между текущим и стартовым временем
             const deltaTime = currenTime - startTime;
             const { days, hours, minutes, seconds } = convertMs(deltaTime);
-            console.log(`${days} : ${hours} : ${minutes} : ${seconds}`);
+            upDateFaceClock({ days, hours, minutes, seconds });
+            console.log( `${days} : ${hours} : ${minutes} : ${seconds}`);
         }, 1000);
-        }
-    }
-timer.start();
+    },
+    stop() {
+        clearInterval(this.intervalId);
+        this.isActive = false;},
+};
+refs.startBtn.addEventListener('click', () => { timer.start(); });
 // Напиши функцию addLeadingZero(value),которая использует метод метод padStart() и перед отрисовкой интефрейса форматируй значение.
 function addLeadingZero(value){ return String(value).padStart(2, '0') };
 function convertMs(ms) {
@@ -73,13 +83,16 @@ const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
 const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
 return { days, hours, minutes, seconds };
 };
+// const foo = flatpickr(refs.inputClock, options);
 const options = {
-enableTime: true,
-time_24hr: true,
-defaultDate: new Date(),
-minuteIncrement: 1,
-onClose(selectedDates) {
-console.log(selectedDates[0]);
-},
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1,
+    onClose(selectedDates) {
+        // console.log(selectedDates[0]);
+    },
 };
-const flatpickr = flatpickr(refs.inputClock, options);
+function upDateFaceClock({ days, hours, minutes, seconds }) { refs.inputClock.textContent = ` ${days} : ${hours} : ${minutes} : ${seconds} `; }
+
+
