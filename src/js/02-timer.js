@@ -1,7 +1,6 @@
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/flatpickr.min.css';
 import Notiflix from 'notiflix';
-
 // Мы подготовили для тебя объект который нужен для выполнения задания.
 // Разберись за что отвечает каждое свойство в документации «Options» 
 // и используй его в своем коде.
@@ -44,35 +43,58 @@ import Notiflix from 'notiflix';
 const refs = {
     inputClock: document.querySelector('#datetime-picker'),
     startBtn: document.querySelector('button[data-start]'),
+    days: document.querySelector('span[data-days]'),
+    hours: document.querySelector('span[data-hours]'),
+    minutes: document.querySelector('span[data-minutes]'),
+    seconds:document.querySelector('span[data-seconds]'),
 };
-// refs.startBtn.disabled = true;
-const timer = {
-    intervalId: null,
-    isActive: false,
-    
-    start() {
-        if (this.isActive) { return;}
-        const startTime = Date.now();
-        this.isActive = true;
-        // время на момент вызова функции
-        this.intervalId=setInterval(() => {
-            const currenTime = Date.now()
-            // console.log(currenTime);
-            // выводим разницу между текущим и стартовым временем
-            const deltaTime = currenTime - startTime;
-            const { days, hours, minutes, seconds } = convertMs(deltaTime);
-            upDateFaceClock({ days, hours, minutes, seconds });
-            console.log( `${days} : ${hours} : ${minutes} : ${seconds}`);
-        }, 1000);
+refs.startBtn.disabled = true;
+
+const options = {
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1,
+    onClose(selectedDates) {
+        const inputDate = selectedDates[0];
+        const currenTime = Date.now();
+        const deltaTime = inputDate - currenTime;
+        if (deltaTime > 0) { refs.startBtn.disabled = false; }
+        else {
+        Notiflix.Notify.failure("Please choose a date in the future");
+        }
     },
-    stop() {
-        clearInterval(this.intervalId);
-        this.isActive = false;},
 };
-refs.startBtn.addEventListener('click', () => { timer.start(); });
-// Напиши функцию addLeadingZero(value),которая использует метод метод padStart() и перед отрисовкой интефрейса форматируй значение.
-function addLeadingZero(value){ return String(value).padStart(2, '0') };
-function convertMs(ms) {
+const foo = flatpickr(refs.inputClock, options);
+class Timer {
+    constructor({onTick}) {
+        this.intervalId = null;
+        this.isActive = false;
+        this.onTick = onTick;
+    }
+start() {
+    if (this.isActive) { return; }
+    const timeSelected = foo.selectedDates[0].getTime();
+    this.isActive = true;
+
+    this.intervalId=setInterval(() => {
+        const currenTime = Date.now()
+        const deltaTime = timeSelected-currenTime;
+        const convertedTime =this.convertMs(deltaTime);
+        this.onTick(convertedTime);
+        if (deltaTime <= 0) { this.stop(); }
+        // console.log(`${days} : ${hours} : ${minutes} : ${seconds}`);
+    }, 1000);
+    }
+
+stop() {
+        clearInterval(this.intervalId);
+        this.isActive = false;
+        const convertedTime =this.convertMs(0);
+        this.onTick(convertedTime);
+    }
+
+convertMs(ms) {
 const second = 1000;
 const minute = second * 60;
 const hour = minute * 60;
@@ -83,16 +105,20 @@ const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
 const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
 return { days, hours, minutes, seconds };
 };
-// const foo = flatpickr(refs.inputClock, options);
-const options = {
-    enableTime: true,
-    time_24hr: true,
-    defaultDate: new Date(),
-    minuteIncrement: 1,
-    onClose(selectedDates) {
-        // console.log(selectedDates[0]);
-    },
-};
-function upDateFaceClock({ days, hours, minutes, seconds }) { refs.inputClock.textContent = ` ${days} : ${hours} : ${minutes} : ${seconds} `; }
 
+}
+const timer = new Timer(
+    {onTick:updateClockface}
+);
+
+refs.startBtn.addEventListener('click', () => { timer.start(); });
+// Напиши функцию addLeadingZero(value),которая использует метод метод padStart() и перед отрисовкой интефрейса форматируй значение.
+function addLeadingZero(value){ return String(value).padStart(2, '0') };
+
+function updateClockface({ days, hours, minutes, seconds }) {
+    refs.days.textContent = days;
+    refs.hours.textContent = hours;
+    refs.minutes.textContent = minutes;
+    refs.seconds.textContent = seconds;
+}
 
