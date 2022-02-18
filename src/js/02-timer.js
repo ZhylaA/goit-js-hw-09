@@ -46,9 +46,22 @@ const refs = {
     days: document.querySelector('span[data-days]'),
     hours: document.querySelector('span[data-hours]'),
     minutes: document.querySelector('span[data-minutes]'),
-    seconds:document.querySelector('span[data-seconds]'),
+    seconds: document.querySelector('span[data-seconds]'),
+    timer:document.querySelector('.timer'),
 };
 refs.startBtn.disabled = true;
+refs.startBtn.style.backgroundColor = "blue";
+refs.startBtn.style.color = "yellow";
+refs.startBtn.style.width = "60px";
+refs.startBtn.style.height = "30px";
+refs.timer.style.display = "flex";
+refs.timer.style.textAlign = "center";
+// refs.hours.style.display = "flex";
+// refs.minutes.style.display = "flex";
+// refs.seconds.style.display = "flex";
+
+
+
 
 const options = {
     enableTime: true,
