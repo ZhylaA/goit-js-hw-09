@@ -7,6 +7,7 @@ const button = document.querySelector('button');
 let delay = document.querySelector('input[name="delay"]');
 let step = document.querySelector('input[name="step"]');
 let amount = document.querySelector('input[name="amount"]');
+
 // Дополни код функции createPromise так, чтобы она возвращала один промис,
 //   который выполянется или отклоняется через delay времени.Значением промиса должен быть объект,
 //   в котором будут свойства position и delay со значениями одноименных параметров.
@@ -34,14 +35,17 @@ function createPromise(position, delay) {
 //     и задержку учитывая введенную пользователем первую задержку(delay) и шаг(step).
 form.addEventListener('submit', onClickSubmit);
 function onClickSubmit(ev) {
-    ev.preventDefault();  
-  delay = delay.value;
-  step = step.value;
-  amount = amount.value;
+  ev.preventDefault();  
+  
+  delay = Number(delay.value);
+
+  step = Number(step.value);
+
+  amount = Number(amount.value);
   console.log(delay,step,amount);
   for (let i = 0; i < amount; i += 1) {
     const stepDelay = delay + i * step;
-    createPromise(i += 1, stepDelay);
+    createPromise(i + 1, stepDelay);
 }
 }
 
